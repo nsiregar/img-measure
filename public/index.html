@@ -5,8 +5,61 @@
 <link rel=stylesheet href="../lib/main.css">
 <script src="../lib/main.js"></script>
 
+<div class="container">
+    <div class="image-annotation-toolbar">
+        <button id="line-button">Line</button>
+        <button id="zoom-in">Zoom In</button>
+        <button id="zoom-out">Zoom Out</button>
+        <button id="zoom-reset">Reset Zoom</button>
+        <button id="pan">Pan</button>
+    </div>
+    <canvas id="canvas" width="500" height="500" style="border:1px solid #ccc"></canvas>
+</div>
+
 <script>
-  var main = new ImgMeasure();
-  console.log(main.state);
+  var canvas = document.querySelector("#canvas");
+  var imgMeasure = new ImgMeasure(canvas);
+  imgMeasure.init()
+
+  var zoomIn = document.querySelector("#zoom-in");
+  var zoomOut = document.querySelector("#zoom-out");
+  var zoomReset = document.querySelector("#zoom-reset");
+  var pan = document.querySelector("#pan");
+  var lineButton = document.querySelector("#line-button");
+
+  pan.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (imgMeasure.mode === 'pan') {
+          imgMeasure.mode = null;
+      } else {
+          imgMeasure.mode = 'pan';
+          imgMeasure.panning();
+      }
+  })
+
+  lineButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (imgMeasure.mode === 'line') {
+          imgMeasure.mode = null;
+      } else {
+          imgMeasure.mode = 'line';
+          imgMeasure.drawLine();
+      }
+  })
+
+  zoomIn.addEventListener("click", (e) => {
+      e.preventDefault();
+      imgMeasure.zoomIn();
+  });
+
+  zoomOut.addEventListener("click", (e) => {
+      e.preventDefault();
+      imgMeasure.zoomOut();
+  });
+
+  zoomReset.addEventListener("click", (e) => {
+      e.preventDefault();
+      imgMeasure.resetZoom();
+  });
 </script>
 
