@@ -9,20 +9,22 @@ export default class ImgMeasure {
   constructor(canvasElement) {
     this.canvas = new fabric.Canvas(canvasElement);
     this.mode = null;
+    this.objects = [];
+    this.lineScale = 1;
   }
 
   init() {
     let img = new Image();
     let that = this;
     img.onload = () => {
-        this.canvas.setBackgroundImage(
-          img.src,
-          this.canvas.renderAll.bind(this.canvas),
-          {
-            scaleX: this.canvas.width / img.width,
-            scaleY: this.canvas.height / img.height,
-          }
-        );
+      this.canvas.setBackgroundImage(
+        img.src,
+        this.canvas.renderAll.bind(this.canvas),
+        {
+          scaleX: this.canvas.width / img.width,
+          scaleY: this.canvas.height / img.height,
+        }
+      );
     }
 
     img.src = "./ruler.jpg";
@@ -47,7 +49,7 @@ export default class ImgMeasure {
 
   drawLine() {
     let lineDrawing = false;
-    let line = {};
+    let line;
     this.canvas.on('mouse:down', (event) => {
       if (this.mode == drawMode.line) {
         this.canvas.selection = false;
@@ -76,9 +78,32 @@ export default class ImgMeasure {
       }
     });
 
-    this.canvas.on('mouse:up', function (o) {
+    this.canvas.on('mouse:up', (event) => {
       lineDrawing = false;
+      let lineObject = {
+        x1: line.x1,
+        x2: line.x2,
+        y1: line.y1,
+        y2: line.y2,
+      }
+      this.objects.push(lineObject);
+      let lineLength = this.lineLength(lineObject) / this.lineScale;
+      console.log("length (mm)", lineLength);
     });
+  }
+
+  lineLength(lineObject) {
+      let mm_const = 0.2645833333;
+      let rootX = Math.pow((lineObject.x1 - lineObject.x2), 2)
+      let rootY = Math.pow((lineObject.y1 - lineObject.y2), 2)
+      return Math.sqrt(rootX + rootY)
+  }
+
+  clear() {
+    let canvasObjects = this.canvas.getObjects();
+    canvasObjects.forEach((item) => {
+      this.canvas.remove(item);
+    })
   }
 
   panning() {

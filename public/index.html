@@ -5,27 +5,58 @@
 <link rel=stylesheet href="../lib/main.css">
 <script src="../lib/main.js"></script>
 
-<div class="container">
-    <div class="image-annotation-toolbar">
+<div id="main">
+    <div id="container">
+        <canvas id="canvas" width=1281 height=720 style="border:1px solid #ccc"></canvas>
+    </div>
+
+    <div id="scale-input">
+        <label for="scale">Scale (mm)</label>
+        <input type="text" id="image-scale">
+    </div>
+
+    <div id="tool-container">
+        <button id="pan">Pan</button>
         <button id="line-button">Line</button>
         <button id="zoom-in">Zoom In</button>
         <button id="zoom-out">Zoom Out</button>
         <button id="zoom-reset">Reset Zoom</button>
-        <button id="pan">Pan</button>
+        <button id="clear">Clear</button>
+        <button id="scale">Scale</button>
     </div>
-    <canvas id="canvas" width="500" height="500" style="border:1px solid #ccc"></canvas>
 </div>
 
 <script>
   var canvas = document.querySelector("#canvas");
   var imgMeasure = new ImgMeasure(canvas);
+  var scale = document.querySelector("#image-scale");
+  var lineScale;
   imgMeasure.init()
 
+  var pan = document.querySelector("#pan");
+  var lineButton = document.querySelector("#line-button");
   var zoomIn = document.querySelector("#zoom-in");
   var zoomOut = document.querySelector("#zoom-out");
   var zoomReset = document.querySelector("#zoom-reset");
-  var pan = document.querySelector("#pan");
-  var lineButton = document.querySelector("#line-button");
+  var clearButton = document.querySelector("#clear");
+  var scaleButton = document.querySelector("#scale");
+
+  function lineLength(lineObject) {
+      let mm_const = 0.2645833333;
+      let rootX = Math.pow((lineObject.x1 - lineObject.x2), 2)
+      let rootY = Math.pow((lineObject.y1 - lineObject.y2), 2)
+      return Math.sqrt(rootX + rootY)
+  }
+
+  scaleButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      let imgScale = scale.value || 1;
+      console.log("imgScale", imgScale)
+      let calibrationLine = lineLength(imgMeasure.objects[0]);
+      console.log("calibrationLine", calibrationLine)
+      lineScale = (calibrationLine / imgScale);
+      imgMeasure.lineScale = lineScale;
+  })
 
   pan.addEventListener("click", (e) => {
       e.preventDefault();
@@ -60,6 +91,11 @@
   zoomReset.addEventListener("click", (e) => {
       e.preventDefault();
       imgMeasure.resetZoom();
+  });
+
+  clearButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      imgMeasure.clear();
   });
 </script>
 
